@@ -1,0 +1,6 @@
+{
+  "rewrites": [
+    { "source": "/api/:path*", "destination": "https://fitmirror-api.onrender.com/:path*" },
+    { "source": "/((?!api/).*)", "destination": "/index.html" }
+  ]
+}
