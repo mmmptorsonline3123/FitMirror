@@ -1,0 +1,11 @@
+.env
+.venv/
+__pycache__/
+.pytest_cache/
+backend/models/*.task
+node_modules/
+dist/
+test-results/
+playwright-report/
+.env.*
+!.env.example
