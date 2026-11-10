@@ -1,0 +1,15 @@
+fastapi==0.162.2
+uvicorn[standard]
+python-multipart
+pydantic-settings
+email-validator
+httpx==0.28.1  # app/fetch.py swaps the transport pool (private attr); re-check on upgrade
+httpcore
+pymongo==4.19.0
+mongomock
+pyjwt==2.15.1
+argon2-cffi==25.1.0
+boto3
+pillow
+numpy
+mediapipe
