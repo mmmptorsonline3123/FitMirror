@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: fitmirror-api
+    runtime: python
+    rootDir: backend
+    buildCommand: >-
+      pip install -r requirements.txt &&
+      mkdir -p models &&
+      curl -sfL -o models/pose_landmarker_full.task https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_full/float16/latest/pose_landmarker_full.task
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT --no-access-log
+    healthCheckPath: /health
+    envVars:
+      - { key: PYTHON_VERSION, value: "3.12.8" }
+      - { key: APP_ENV, value: production }
+      - { key: JWT_SECRET, generateValue: true }
+      - { key: MONGO_URI, sync: false }
+      - { key: S3_ENDPOINT_URL, sync: false }
+      - { key: S3_BUCKET, sync: false }
+      - { key: S3_ACCESS_KEY_ID, sync: false }
+      - { key: S3_SECRET_ACCESS_KEY, sync: false }
+      - { key: INFERENCE_PROVIDER, value: replicate }
+      - { key: REPLICATE_API_TOKEN, sync: false }
