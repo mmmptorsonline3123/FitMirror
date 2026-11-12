@@ -16,7 +16,21 @@ os.environ.update({
     "S3_ACCESS_KEY_ID": "test", "S3_SECRET_ACCESS_KEY": "test", "S3_REGION": "us-east-1", "POSE_DETECTOR": "fake", "INFERENCE_PROVIDER": "fake", "URL_FETCH_ALLOW": f"127.0.0.1:{SHOP_PORT}", "FEATURE_3D_GARMENT": "true",
 })
 
+def _relative_signed_urls():
+    """Demo/E2E: hand out '/fitmirror-e2e/users/...?sig' instead of 'http://127.0.0.1:5055/...', which a phone on
+    the LAN can't reach. Vite proxies that path to moto. Real R2 URLs (production) are already public HTTPS hosts."""
+    from urllib.parse import urlsplit
+    from app import storage
+    absolute = storage.Storage.signed_url
+
+    def relative(self, key):
+        u = urlsplit(absolute(self, key))
+        return f"{u.path}?{u.query}"
+    storage.Storage.signed_url = relative
+
+
 if __name__ == "__main__":
+    _relative_signed_urls()
     ThreadedMotoServer(ip_address="127.0.0.1", port=S3_PORT).start()
     boto3.client("s3", endpoint_url=os.environ["S3_ENDPOINT_URL"], region_name="us-east-1",
                  aws_access_key_id="test", aws_secret_access_key="test").create_bucket(Bucket="fitmirror-e2e")

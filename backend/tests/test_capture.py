@@ -15,6 +15,14 @@ def test_upload_valid_photo(client, s3):
     assert [p["view"] for p in client.get("/capture/photos").json()] == ["front"]
 
 
+def test_phone_shaped_side_photo_accepted_by_fake_detector(client):
+    """Regression: the demo/test detector used to infer 'side' from a narrow image only, so every
+    normal 3:4 phone photo uploaded as the side view was rejected as wrong_view."""
+    r = upload(client, "side", jpeg(1200, 1600))
+    assert r.status_code == 201, r.text
+    assert upload(client, "front", jpeg(1200, 1600)).status_code == 201
+
+
 def test_rejections_have_specific_reasons(client, s3):
     cases = [
         (upload(client, "front", jpeg(blank=True)), "no_person"),

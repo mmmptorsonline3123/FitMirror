@@ -99,7 +99,7 @@ def test_fit_preconditions():
 
 def test_fit_failure_is_reported(monkeypatch):
     c = fit_ready_client(("front", "side"))
-    monkeypatch.setattr(FakeDetector, "segment", lambda self, rgb: None)
+    monkeypatch.setattr(FakeDetector, "segment", lambda self, rgb, view=None: None)
     b = c.get(f"/body/{c.post('/body/fit').json()['id']}").json()
     assert b["status"] == "failed" and "couldn't find you" in b["error"] and b["mesh_url"] is None
 

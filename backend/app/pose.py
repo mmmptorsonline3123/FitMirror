@@ -14,10 +14,11 @@ class Landmark:
 
 
 class PoseDetector(Protocol):
-    def detect(self, rgb: np.ndarray) -> list[list[Landmark]]:
+    # `view` is the capture view the user claims (front/side/back). Real detectors ignore it; FakeDetector uses it.
+    def detect(self, rgb: np.ndarray, view: str | None = None) -> list[list[Landmark]]:
         """Return one 33-landmark list (MediaPipe/BlazePose topology) per detected person."""
 
-    def segment(self, rgb: np.ndarray) -> tuple[list[Landmark], np.ndarray] | None:
+    def segment(self, rgb: np.ndarray, view: str | None = None) -> tuple[list[Landmark], np.ndarray] | None:
         """First person's landmarks + bool person mask (h, w), or None if nobody."""
 
 
@@ -37,10 +38,10 @@ class MediaPipeDetector:
     def _run(self, rgb):
         return self._lm.detect(self._mp_image(image_format=self._fmt, data=np.ascontiguousarray(rgb)))
 
-    def detect(self, rgb):
+    def detect(self, rgb, view=None):
         return [[Landmark(p.x, p.y, p.visibility or 0.0) for p in pose] for pose in self._run(rgb).pose_landmarks]
 
-    def segment(self, rgb):
+    def segment(self, rgb, view=None):
         res = self._run(rgb)
         if not res.pose_landmarks or not res.segmentation_masks:
             return None
@@ -70,25 +71,29 @@ _SIDE_POLYS = [
 
 
 class FakeDetector:
-    """Test/E2E only (blocked in production by config). Blank (uniform) image -> nobody;
-    narrow image (w/h < 0.55) -> ideal side pose; anything else -> ideal front pose."""
-    def detect(self, rgb):
+    """Test/demo only (blocked in production by config). Blank (uniform) image -> nobody. Otherwise an ideal pose:
+    side if the caller says view="side" (or, with no view given, if the image is narrow, w/h < 0.55), else front."""
+    @staticmethod
+    def _is_side(rgb, view):
+        h, w = rgb.shape[:2]
+        return view == "side" if view else w / h < 0.55
+
+    def detect(self, rgb, view=None):
         if float(rgb.std()) < 2.0:
             return []
-        h, w = rgb.shape[:2]
-        pts = {**_FAKE, **_FAKE_SIDE} if w / h < 0.55 else _FAKE
+        pts = {**_FAKE, **_FAKE_SIDE} if self._is_side(rgb, view) else _FAKE
         return [[Landmark(*pts.get(i, (0.5, 0.3)), 0.99) for i in range(33)]]
 
-    def segment(self, rgb):
+    def segment(self, rgb, view=None):
         from PIL import Image, ImageDraw
-        people = self.detect(rgb)
+        people = self.detect(rgb, view)
         if not people:
             return None
         h, w = rgb.shape[:2]
         img = Image.new("1", (w, h), 0)
         d = ImageDraw.Draw(img)
         d.ellipse([(.445 * w, .06 * h), (.555 * w, .17 * h)], fill=1)
-        for poly in _SIDE_POLYS if w / h < 0.55 else _FRONT_POLYS:
+        for poly in _SIDE_POLYS if self._is_side(rgb, view) else _FRONT_POLYS:
             d.polygon([(x * w, y * h) for x, y in poly], fill=1)
         return people[0], np.array(img, dtype=bool)
 

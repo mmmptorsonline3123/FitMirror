@@ -94,5 +94,5 @@ def validate_photo(data: bytes, view: str, detector: PoseDetector, max_bytes: in
     if view not in VIEWS:
         raise PhotoRejected("bad_view", f"view must be one of {', '.join(VIEWS)}.")
     img = load_image(data, max_bytes)
-    check_pose(detector.detect(img.rgb), view, img.width, img.height)
+    check_pose(detector.detect(img.rgb, view), view, img.width, img.height)
     return img

@@ -35,7 +35,7 @@ def run_fit(body_id: str, db):
             if not photo:
                 raise BodyFitError(f"Your {view} photo was replaced while fitting. Please run it again.")
             rgb = np.asarray(Image.open(io.BytesIO(store.get(photo["key"]))).convert("RGB"))
-            seg = get_detector().segment(rgb)
+            seg = get_detector().segment(rgb, view)
             if not seg:
                 raise BodyFitError(f"We couldn't find you in the {view} photo. Retake it.")
             views[view] = ViewInput(*seg)

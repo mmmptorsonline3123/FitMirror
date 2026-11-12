@@ -27,8 +27,10 @@ function Camera({ view, onShot }) {
 
   useEffect(() => {
     let stream
-    navigator.mediaDevices?.getUserMedia({ video: { facingMode: 'user', height: { ideal: 1920 } }, audio: false })
-      .then((s) => { stream = s; if (video.current) video.current.srcObject = s })
+    // mediaDevices is undefined on plain-http pages (e.g. a phone opening the PC's LAN address): reject so the message shows
+    const camera = navigator.mediaDevices?.getUserMedia({ video: { facingMode: 'user', height: { ideal: 1920 } }, audio: false })
+      ?? Promise.reject(new Error('no camera API'))
+    camera.then((s) => { stream = s; if (video.current) video.current.srcObject = s })
       .catch(() => setError('Camera unavailable — use “Upload a photo” instead.'))
     return () => stream?.getTracks().forEach((t) => t.stop())
   }, [])

@@ -10,6 +10,9 @@ export default defineConfig({
         target: process.env.VITE_API_PROXY || 'http://127.0.0.1:8000',
         rewrite: (p) => p.replace(/^\/api/, ''),
       },
+      // Demo/E2E only (backend/e2e_server.py): photo files from the local moto S3, so phones on the LAN can load them.
+      // Object paths only (/users/...), so bucket listings aren't reachable from the network.
+      '/fitmirror-e2e/users/': 'http://127.0.0.1:5055',
     },
   },
 })
