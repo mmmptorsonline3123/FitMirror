@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">FitMirror</string>
+    <string name="title_activity_main">FitMirror</string>
+    <string name="package_name">com.fitmirror.app</string>
+    <string name="custom_url_scheme">com.fitmirror.app</string>
+</resources>

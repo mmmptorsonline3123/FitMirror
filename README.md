@@ -20,6 +20,15 @@ cd ../frontend && npm install && npm run dev      # http://localhost:5173
 
 No Atlas/R2 yet? `python e2e_server.py` (in `backend/`) runs the API against in-memory Mongo + local fake S3 + fake pose detector.
 
+## Android app
+
+`frontend/android/` is a Capacitor shell that opens the hosted FitMirror site (same login, camera and features as the web app).
+
+1. Deploy the frontend (see Deploy), then put its URL in `frontend/capacitor.config.json` → `server.url`.
+2. Install **Android Studio** (it bundles the JDK and Android SDK).
+3. `cd frontend && npm run android:sync && npm run android:open`, then press ▶ Run in Android Studio, or `npm run android:apk` for `android/app/build/outputs/apk/debug/app-debug.apk`.
+4. Play Store: create a signing key in Android Studio (Build → Generate Signed App Bundle) and upload the `.aab`.
+
 ## Tests
 
 ```bash

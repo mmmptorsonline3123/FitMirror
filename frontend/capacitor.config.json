@@ -1,0 +1,12 @@
+{
+  "appId": "com.fitmirror.app",
+  "appName": "FitMirror",
+  "webDir": "dist",
+  "server": {
+    "url": "https://fitmirror.vercel.app",
+    "androidScheme": "https"
+  },
+  "android": {
+    "allowMixedContent": false
+  }
+}
